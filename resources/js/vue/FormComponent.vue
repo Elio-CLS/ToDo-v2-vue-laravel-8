@@ -4,7 +4,7 @@
 
     <div class="card-body">
 
-        <form action="" @submit.prevent="nuevoPensamiento()">
+        <form action="" @submit.prevent="nuevoItem()">
             <div class="form-group">
                 <label for="pensamiento">
                     <input
@@ -12,7 +12,7 @@
                         name="pensamiento" 
                         id="" 
                         class="form-control"
-                        v-model="descripcion">
+                        v-model="item.name">
                 </label>
             </div>
             <button type="submit" class="btn btn-success mt-3">
@@ -27,21 +27,31 @@
 export default {
     data() {
         return {
-            descripcion: '',
+            item: {
+                name: '',
+            }
         }
     },
     mounted() {
         console.log('Form Component mounted.')
     },
     methods: {
-        nuevoPensamiento() {
-            const pensamiento = {
-                id: 2,
-                descripcion: this.descripcion,
-                create_at: '27/09/2021'
+        nuevoItem() {
+            // Si no hay nada escrito
+            if(this.item.name == '') {
+                return;
             }
-            this.$emit('nuevo', pensamiento);
-            this.descripcion = '';
+            // Si hay algo escrito
+            axios.post('api/item/store', {
+                item: this.item
+            })
+            .then(response => {
+                // Si es correcto el estatus 201
+                if(response.status === 201) {
+                    this.item.name = '';
+                    this.$emit('reload');
+                }
+            })
         }
     }
 }

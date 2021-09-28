@@ -3,28 +3,15 @@
     <div class="col-md-8">
     
         <form-component
-            @nuevo="addPensamiento">
+            @reload="getList()">
         </form-component>
 
-        <!-- <form-component
-            @nuevo="addPensamiento"
-        /> -->
-
         <item-component
-            v-for="(pensamiento, index) in pensamientos"
-            :key="pensamiento.id"
-            :pensamiento="pensamiento"
-            @update="actualizarPensamiento(index, ...arguments)"
-            @delete="borrarPensamiento(index)">
+            v-for="item in items"
+            :key="item.id"
+            :item="item"    
+            @reload="getList()">
         </item-component>
-
-        <!-- <item-component
-            v-for="(pensamiento, index) in pensamientos"
-            :key="pensamiento.id"
-            :pensamiento="pensamiento"
-            @update="actualizarPensamiento(index, ...arguments)"
-            @delete="borrarPensamiento(index)">
-        /> -->
 
     </div>
 </div>
@@ -41,25 +28,24 @@ export default {
     },
     data() {
         return {
-            pensamientos: [{
-                id: '1',
-                descripcion: 'Hola buen dia',
-                create_at: '27/09/2021'
-            }],
+            items: [],
         }
     },
     mounted() {
-        console.log('Mi Pensamiento Component mounted.')
+        console.log('App Component mounted.')
+    },
+    created() {
+        this.getList();
     },
     methods: {
-        addPensamiento(pensamiento) {
-            this.pensamientos.push(pensamiento);
-        },
-        borrarPensamiento(index) {
-           this.pensamientos.splice(index, 1); 
-        },
-        actualizarPensamiento(index, pensamiento) {
-            this.pensamientos[index] = pensamiento;
+        getList() {
+            axios.get('api/items')
+            .then(response => {
+                this.items = response.data
+            })
+            .catch(error => {
+                console.log(error);
+            })
         },
     },
 }

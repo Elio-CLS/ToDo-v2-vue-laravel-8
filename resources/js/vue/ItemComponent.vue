@@ -1,22 +1,22 @@
 <template>
     <div class="card mb-4">
-        <div class="card-header">Publicado en {{ pensamiento.create_at }}</div>
+        <div class="card-header">Publicado en {{ item.created_at }}</div>
 
         <div class="card-body">
             <input
                 v-if="editStatus" 
                 type="text" 
                 class="form-control"
-                v-model="pensamiento.descripcion">
+                v-model="item.name">
         
-            <p v-else>{{ pensamiento.descripcion }}</p>
+            <p v-else>{{ item.name }}</p>
         </div>
 
         <div class="card-footer">
             <button
                 v-if="editStatus" 
                 class="btn btn-success me-1" 
-                @click="guardar()">
+                @click="actualizar()">
                 Guardar
             </button>
             <button
@@ -44,19 +44,27 @@
 
 <script>
     export default {
-        props: ['pensamiento'],
+        props: ['item'],
 
         data() {
             return {
-               editStatus: false,
+               editStatus: false, // Para el cambio de botones e input
             }
         },
         mounted() {
-            console.log('Pensamiento Component mounted.')
+            console.log('Item Component mounted.')
         },
         methods: {
             borrar() {
-                this.$emit('delete');
+                axios.delete('api/item/' + this.item.id)
+                .then(response => {
+                    if(response.status === 200) {
+                    this.$emit('reload');
+                    }
+                })
+                .catch(error => {
+                console.log(error);
+            })
             },
             editar() {
                 this.editStatus = true;
@@ -64,9 +72,16 @@
             cancelar() {
                 this.editStatus = false;
             },
-            guardar() {
-                this.editStatus = false;
-                this.$emit('update', this.pensamiento);
+            actualizar() {
+                axios.put('api/item/' + this.item.id, {
+                    item: this.item
+                })
+                .then(response => {
+                    if(response.status === 200) {
+                        this.editStatus = false;
+                        this.$emit('reload');
+                    }
+                })
             },
         },
     }
